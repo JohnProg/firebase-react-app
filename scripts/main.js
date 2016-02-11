@@ -12,6 +12,10 @@ var createBrowserHistory = require('history/lib/createBrowserHistory');
 
 var h = require('./helpers');
 
+// Firebase
+var Rebase = require('re-base');
+var base = Rebase.createClass('https://sweltering-inferno-9174.firebaseio.com/');
+
 
 
 /* 
@@ -24,6 +28,27 @@ var App = React.createClass({
 			fishes : {},
 			order : {}
 		}
+	},
+
+	componentDidMount : function () {
+		base.syncState(this.props.params.storeId + '/fishes', {
+			context : this,
+			state : 'fishes'
+		});
+
+		var localStorageRef = localStorage.getItem('order-' + this.props.params.storeId);
+
+		if(localStorageRef) {
+			// update our component to reflect what's in localStorage
+			this.setState({
+				order : JSON.parse(localStorageRef)
+			});
+		}
+
+	},
+
+	componentWillUpdate : function (nextProps, nextState) {
+		localStorage.setItem('order-' + this.props.params.storeId, JSON.stringify(nextState.order));
 	},
 
 	addToOrder : function(key) {
@@ -54,7 +79,7 @@ var App = React.createClass({
 		return (
 			<div className="catch-of-the-day">
 				<div className="menu">
-					<Header tagline="Fresh Seafood Good" />
+					<Header tagline="Fresh Seafood Market" />
 					<ul className="list-of-fishes">
 						{/* map takes in an array and allows you
 						to use the data in that array to return a new array */}
@@ -67,6 +92,8 @@ var App = React.createClass({
 		)
 	}
 });
+
+
 
 /*
 	Fish
@@ -173,18 +200,49 @@ var Header = React.createClass({
 */
 
 var Order = React.createClass({
+
+	renderOrder : function(key) {
+		var fish = this.props.fishes[key];
+		var count = this.props.order[key];
+		
+		if(!fish) {
+			return <li key={key}>Sorry, fish no longer available.</li>
+		}
+
+		return (
+			<li key={key}>
+				<span>{count}</span>lbs
+				{fish.name}
+				<span className="price">{h.formatPrice(count * fish.price)}</span>
+			</li>
+		)
+	},
+
 	render : function() {
+		// gives array of all fishes ordered
 		var orderIds = Object.keys(this.props.order);
 		var total = orderIds.reduce((prevTotal, key)=> {
-			var fish = this.props.fish[key];
+			var fish = this.props.fishes[key];
 			var count = this.props.order[key];
-		});
+			var isAvailable = fish && fish.status === 'available';
+
+			if(fish && isAvailable) {
+				// take fish.price, multiply by order, return total
+				return prevTotal + (count * parseInt(fish.price) || 0);
+			}
+
+			return prevTotal;
+		}, 0);
 
 		return (
 			<div className="order-wrap">
 				<h2 className="order-title">Your Order</h2>
 				<ul className="order">
-
+					{orderIds.map(this.renderOrder)}
+					<li className="total">
+						<strong>Total:</strong>
+						{h.formatPrice(total)}
+					</li>
 				</ul>
 			</div>
 		)
