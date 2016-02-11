@@ -25,6 +25,13 @@ var App = React.createClass({
 			order : {}
 		}
 	},
+
+	addToOrder : function(key) {
+		// set order to 1 if 0, otherwise add one to current order
+		this.state.order[key] = this.state.order[key] + 1 || 1;
+		this.setState({order : this.state.order});
+	},
+
 	addFish : function(fish) {
 		var timestamp = (new Date()).getTime();
 		// update the state object
@@ -32,18 +39,69 @@ var App = React.createClass({
 		// set the state
 		this.setState({fishes : this.state.fishes});
 	},
+
+	loadSamples : function() {
+		this.setState({
+			fishes : require('./sample-fishes')
+		});
+	},
+
+	renderFish : function (key) {
+		return <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder} />
+	},
+
 	render : function() {
 		return (
 			<div className="catch-of-the-day">
 				<div className="menu">
 					<Header tagline="Fresh Seafood Good" />
+					<ul className="list-of-fishes">
+						{/* map takes in an array and allows you
+						to use the data in that array to return a new array */}
+						{Object.keys(this.state.fishes).map(this.renderFish)}
+					</ul>
 				</div>
-				<Order />
-				<Inventory addFish={this.addFish} />
+				<Order fishes={this.state.fishes} order={this.state.order} />
+				<Inventory addFish={this.addFish} loadSamples={this.loadSamples}/>
 			</div>
 		)
 	}
 });
+
+/*
+	Fish
+	<Fish />
+*/
+
+var Fish = React.createClass({
+	onButtonClick : function() {
+		console.log("going to add the fish: ", this.props.index);
+		var key = this.props.index;
+		this.props.addToOrder(key);
+	},
+
+	render : function() {
+		var details = this.props.details;
+		// if status is available = true, if not = false
+		var isAvailable = (details.status === 'available' ? true : false);
+		// if isAvailable 
+		var buttonText = (isAvailable ? 'Add to Order' : 'Sold Out!');
+		return (
+			<li className="menu-fish">
+				<img src={details.image} alt="{details.name}" />
+				<h3 className="fish-name">
+					{details.name}
+					<span className="price">{details.price}</span>
+				</h3>
+				<p>{details.desc}</p>
+				{/* if isAvailable=false, button is disabled */}
+				<button disabled={!isAvailable} onClick={this.onButtonClick}>{buttonText}</button>
+			</li>
+		)
+	}
+});
+
+
 
 /* 
 	Add fish form
@@ -84,6 +142,8 @@ var AddFishForm = React.createClass({
 	}
 });
 
+
+
 /*
 	Header
 */
@@ -105,20 +165,37 @@ var Header = React.createClass({
 	}
 });
 
+
+
 /*
 	Order
+	<Order />
 */
 
 var Order = React.createClass({
 	render : function() {
+		var orderIds = Object.keys(this.props.order);
+		var total = orderIds.reduce((prevTotal, key)=> {
+			var fish = this.props.fish[key];
+			var count = this.props.order[key];
+		});
+
 		return (
-			<p>Order</p>
+			<div className="order-wrap">
+				<h2 className="order-title">Your Order</h2>
+				<ul className="order">
+
+				</ul>
+			</div>
 		)
 	}
 });
 
+
+
 /*
 	Inventory
+	<Inventory />
 */
 
 var Inventory = React.createClass({
@@ -127,10 +204,13 @@ var Inventory = React.createClass({
 			<div>
 				<h2>Inventory</h2>
 				<AddFishForm {...this.props} />
+				<button onClick={this.props.loadSamples}>Load Sample Fishes</button>
 			</div>
 		)
 	}
 });
+
+
 
 /* 
 	StorePicker
@@ -158,6 +238,8 @@ var StorePicker = React.createClass({
 
 });
 
+
+
 /* 
 	Not found
 */
@@ -167,6 +249,8 @@ var NotFound = React.createClass({
 		return <h1>Not Found!</h1>
 	}
 });
+
+
 
 /*
 	Routes
@@ -179,5 +263,7 @@ var routes = (
 		<Route path="*" component={NotFound} />
 	</Router>
 )
+
+
 
 ReactDOM.render(routes, document.querySelector('#main'));
