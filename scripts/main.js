@@ -61,12 +61,25 @@ var App = React.createClass({
 		this.setState({order : this.state.order});
 	},
 
+	removeFromOrder : function(key) {
+
+	},
+
 	addFish : function(fish) {
 		var timestamp = (new Date()).getTime();
 		// update the state object
 		this.state.fishes['fish-' + timestamp] = fish;
 		// set the state
 		this.setState({fishes : this.state.fishes});
+	},
+
+	removeFish : function(key) {
+		if(confirm("Are you sure you want to remove this fish?")) {
+			this.state.fishes[key] = null;
+			this.setState({
+				fishes : this.state.fishes
+			});
+		}
 	},
 
 	loadSamples : function() {
@@ -91,7 +104,7 @@ var App = React.createClass({
 					</ul>
 				</div>
 				<Order fishes={this.state.fishes} order={this.state.order} />
-				<Inventory addFish={this.addFish} loadSamples={this.loadSamples} fishes={this.state.fishes} linkState={this.linkState} />
+				<Inventory addFish={this.addFish} loadSamples={this.loadSamples} fishes={this.state.fishes} linkState={this.linkState} removeFish={this.removeFish} />
 			</div>
 		)
 	}
@@ -208,16 +221,17 @@ var Order = React.createClass({
 	renderOrder : function(key) {
 		var fish = this.props.fishes[key];
 		var count = this.props.order[key];
+		var removeButton = <button onClick={this.props.removeFromOrder.bind(null,key)}>&times;</button>
 		
 		if(!fish) {
-			return <li key={key}>Sorry, fish no longer available.</li>
+			return <li key={key}>Sorry, fish no longer available. {removeButton}</li>
 		}
 
 		return (
 			<li key={key}>
 				<span>{count}</span>lbs
 				{fish.name}
-				<span className="price">{h.formatPrice(count * fish.price)}</span>
+				<span className="price">{h.formatPrice(count * fish.price)} {removeButton}</span>
 			</li>
 		)
 	},
@@ -272,6 +286,15 @@ var Inventory = React.createClass({
 		return (
 			<div className="fish-edit" key={key}>
 				<input type="text" valueLink={linkState('fishes.'+ key +'.name')} />
+				<input type="text" valueLink={linkState('fishes.'+ key +'.price')} />
+				<select valueLink={linkState('fishes.'+ key +'.status')}>
+					<option value="unavailable">Sold Out!</option>
+					<option value="available">Fresh!</option>
+				</select>
+
+				<textarea valueLink={linkState('fishes.'+ key +'.desc')}></textarea>
+				<input type="text" valueLink={linkState('fishes.'+ key +'.image')} />
+				<button onClick={this.props.removeFish.bind(null, key)}>Remove Fish</button>
 			</div>
 		)
 	},
