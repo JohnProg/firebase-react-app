@@ -149,6 +149,7 @@ var Fish = React.createClass({
 
 /* 
 	Add fish form
+	<AddFishForm />
 */
 
 var AddFishForm = React.createClass({
@@ -190,6 +191,7 @@ var AddFishForm = React.createClass({
 
 /*
 	Header
+	<Header />
 */
 
 var Header = React.createClass({
