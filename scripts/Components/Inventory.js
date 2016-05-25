@@ -3,24 +3,28 @@
 	<Inventory />
 */
 
-import React from 'react';
+import React, {Component} from 'react';
 import AddFishForm from './AddFishForm';
 import Firebase from 'firebase';
-const ref = new Firebase('https://sweltering-inferno-9174.firebaseio.com/');
+import firebaseUrl from './Config';
+const ref = new Firebase(firebaseUrl);
 // Firebase(config.firebasurl)
 
-var Inventory = React.createClass({
-
-	getInitialState : function () {
-		return {
-			uid : ''
+class Inventory extends Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			uid: ''
 		}
-	},
+		this.authHandler = this.authHandler.bind(this);
+		this.logout = this.logout.bind(this);
+		this.renderLogin = this.renderLogin.bind(this);
+	}
 
 	authenticate(provider) {
 		console.log("Trying to auth with " + provider);
 		ref.authWithOAuthPopup(provider, this.authHandler);
-	},
+	}
 
 	componentWillMount() {
 		console.log("Checking to see if we can log them in");
@@ -28,7 +32,7 @@ var Inventory = React.createClass({
 		if(token) {
 			ref.authWithCustomToken(token, this.authHandler);
 		}
-	},
+	}
 
 	logout() {
 		ref.unauth();
@@ -36,7 +40,7 @@ var Inventory = React.createClass({
 		this.setState({
 			uid : null
 		});
-	},
+	}
 
 	authHandler(err, authData) {
 		if(err) {
@@ -67,7 +71,7 @@ var Inventory = React.createClass({
 			});
 
 		});
-	},
+	}
 
 	renderLogin() {
 		return (
@@ -79,9 +83,9 @@ var Inventory = React.createClass({
 				<button className="twitter"onClick={this.authenticate.bind(this, 'twitter')}>Log in with Twitter</button>
 			</nav>
 		)
-	},
+	}
 
-	renderInventory : function(key) {
+	renderInventory(key) {
 		var linkState = this.props.linkState;
 		return (
 			<div className="fish-edit" key={key}>
@@ -97,9 +101,9 @@ var Inventory = React.createClass({
 				<button onClick={this.props.removeFish.bind(null, key)}>Remove Fish</button>
 			</div>
 		)
-	},
+	}
 
-	render : function() {
+	render() {
 		let logoutButton = <button onClick={this.logout}>Logout</button>
 
 		// first check if user is not logged in
@@ -123,20 +127,21 @@ var Inventory = React.createClass({
 			<div>
 				<h2>Inventory</h2>
 				{logoutButton}
-				{Object.keys(this.props.fishes).map(this.renderInventory)}
+				{Object.keys(this.props.fishes).map(this.renderInventory.bind(this))}
 
 				<AddFishForm {...this.props} />
 				<button onClick={this.props.loadSamples}>Load Sample Fishes</button>
 			</div>
 		)
-	},
-	propTypes : {
-		addFish : React.PropTypes.func.isRequired,
-		loadSamples : React.PropTypes.func.isRequired,
-		fishes : React.PropTypes.object.isRequired,
-		removeFish : React.PropTypes.func.isRequired,
-		linkState : React.PropTypes.func.isRequired
 	}
-});
+}
+
+Inventory.propTypes = {
+	addFish : React.PropTypes.func.isRequired,
+	loadSamples : React.PropTypes.func.isRequired,
+	fishes : React.PropTypes.object.isRequired,
+	removeFish : React.PropTypes.func.isRequired,
+	linkState : React.PropTypes.func.isRequired
+}
 
 export default Inventory;

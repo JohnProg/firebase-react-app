@@ -9,10 +9,11 @@ import Order from './Order';
 import AddFishForm from './AddFishForm';
 import Inventory from './Inventory';
 import Catalyst from 'react-catalyst';
+import firebaseUrl from './Config';
 
 // Firebase
 import Rebase from 're-base';
-var base = Rebase.createClass('https://sweltering-inferno-9174.firebaseio.com/');
+var base = Rebase.createClass(firebaseUrl);
 
 var App = React.createClass({
 	mixins : [Catalyst.LinkedStateMixin],

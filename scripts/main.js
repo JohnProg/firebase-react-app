@@ -4,9 +4,9 @@ import {Router, Route} from 'react-router';
 import {createHistory} from 'history';
 
 // Import Components
-import App from './components/App';
-import StorePicker from './components/StorePicker';
-import NotFound from './components/NotFound';
+import App from './Components/App';
+import StorePicker from './Components/StorePicker';
+import NotFound from './Components/NotFound';
 
 /*
 	Routes

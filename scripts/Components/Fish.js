@@ -3,17 +3,22 @@
 	<Fish />
 */
 
-import React from 'react';
+import React, {Component} from 'react';
 import h from '../helpers';
 
-var Fish = React.createClass({
-	onButtonClick : function() {
+class Fish extends Component {	
+	constructor(props) {
+		super(props);
+		this.onButtonClick = this.onButtonClick.bind(this);
+	}
+
+	onButtonClick() {
 		console.log("going to add the fish: ", this.props.index);
 		var key = this.props.index;
 		this.props.addToOrder(key);
-	},
+	}
 
-	render : function() {
+	render() {
 		var details = this.props.details;
 		// if status is available = true, if not = false
 		var isAvailable = (details.status === 'available' ? true : false);
@@ -32,6 +37,6 @@ var Fish = React.createClass({
 			</li>
 		)
 	}
-});
+}
 
 export default Fish;

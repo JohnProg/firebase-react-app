@@ -2,4 +2,5 @@
 	Config info
 */
 
-var firebaseUrl = 'https://sweltering-inferno-9174.firebaseio.com';
+var firebaseUrl = 'https://menu-food.firebaseio.com/';
+export default firebaseUrl;
