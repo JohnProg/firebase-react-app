@@ -1,2 +1,2 @@
 # firebase-react-app
-Web app built with reactJS in ES6.
+Web app built with reactJS, firebase and Rebase in ES6.
